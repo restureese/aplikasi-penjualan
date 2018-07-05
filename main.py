@@ -1,4 +1,3 @@
-from Penjualan import penjualan
-
+from Penjualan import mainprogram
 if __name__ == '__main__':
-	penjualan.main()
+	mainprogram.main()
