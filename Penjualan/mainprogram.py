@@ -240,7 +240,7 @@ class Ui_MainWindow(object):
         Form.move(qr.topLeft())
 
 
-def main():
+if __name__ == '__main__':
     import sys
     app = QtWidgets.QApplication(sys.argv)
     MainWindow = QtWidgets.QMainWindow()

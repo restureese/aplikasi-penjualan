@@ -1,33 +1,16 @@
-from PyQt5.QtSql import *
-from PyQt5.QtWidgets import QMessageBox
-class Database(object):
-
-	def db_connect(self):
-	    db = QSqlDatabase.addDatabase('QMYSQL')
-	    db.setHostName('localhost')
-	    db.setDatabaseName('toko')
-	    db.setUserName('restu')
-	    db.open()
-	    if not db.open():
-	        # QMessageBox.critical(None, "Cannot open database",
-	        #         "Unable to establish a database connection.\n"
-	        #         "This example needs SQLite support. Please read the Qt SQL "
-	        #         "driver documentation for information how to build it.\n\n"
-	        #         "Click Cancel to exit.", QMessageBox.Cancel)
-	        print('gagal')
-	        return False
-	    return True
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 
-	def login(self, query):
-		sql = QSqlQuery()
-		return sql.exec_(query)
-		
-db = Database()
-db.db_connect()
-db.open()
-username = 'restureese'
-passsword = 'masrestu'
-query = 'select * from akun where username='+username+' and passsword='+passsword+';'
+engine = create_engine("mysql://restureese:@localhost/toko", isolation_level="READ UNCOMMITTED")
+db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
 
-print(db.login(query))
+Base = declarative_base()
+Base.query = db_session.query_property()
+
+
+def init():
+	#import models
+	from Penjualan import models
+	Base.metadata.create_all(bind=engine)

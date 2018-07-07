@@ -1,12 +1,22 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication
+from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QMessageBox
 from PyQt5.QtCore import pyqtSlot
-
-
-#database
-from database import Database
+from PyQt5.QtSql import *
+import sys
+# from Penjualan.models import User
+# from Penjualan import mainprogram
+from Penjualan.models import User
+from Penjualan.mainprogram import Ui_MainWindow
 
 class Ui_FormLogin(object):
+    def __init__(self):
+        self.app = QtWidgets.QApplication(sys.argv)
+        self.FormLogin = QtWidgets.QMainWindow()
+        self.setupUi(self.FormLogin)
+        self.setCenter(self.FormLogin)
+        self.FormLogin.show()
+        sys.exit(self.app.exec_())
+
     def setupUi(self, FormLogin):
         FormLogin.setObjectName("FormLogin")
         FormLogin.resize(400, 314)
@@ -60,7 +70,7 @@ class Ui_FormLogin(object):
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.btnLogin = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.btnLogin.setObjectName("btnLogin")
-        self.btnLogin.clicked.connect(self.login_on_click)
+        self.btnLogin.clicked.connect(self.on_click)
         self.horizontalLayout.addWidget(self.btnLogin)
         self.btnClose = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.btnClose.setObjectName("btnClose")
@@ -96,7 +106,7 @@ class Ui_FormLogin(object):
         self.btnClose.setText(_translate("FormLogin", "Close"))
         self.label_3.setText(_translate("FormLogin", "LOGIN ADMINISTRATOR"))
 
-    def center(self,FormLogin):
+    def setCenter(self,FormLogin):
         qr = FormLogin.frameGeometry()
 
         # center point of screen
@@ -108,21 +118,24 @@ class Ui_FormLogin(object):
         # top left of rectangle becomes top left of window centering it
         FormLogin.move(qr.topLeft())
 
-    @pyqtSlot()
-    def login_on_click(self):
-        db = Database()
-        sql = QSqlQuery()
+    def openMainProgram(self):
+        self.form = QtWidgets.QMainWindow()
+        self.ui = Ui_MainWindow()
+        self.ui.setupUi(form)
+        self.form.show()
+
+    #@pyqtSlot()
+    def on_click(self,form):
         username = self.txtUsername.text()
-        passsword = self.txtPassword.text()
+        password = self.txtPassword.text()
+        user = User.query.filter_by(username=username).first()
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    FormLogin = QtWidgets.QMainWindow()
-    ui = Ui_FormLogin()
-    ui.setupUi(FormLogin)
-    ui.center(FormLogin)
-    FormLogin.show()
-    sys.exit(app.exec_())
-
+        if user is None or user.check_password(password=password):
+            QMessageBox.critical(None, "Login Gagal","Username atau password salah !",QMessageBox.Cancel)
+        else:
+            self.form = QtWidgets.QMainWindow()
+            self.ui = Ui_MainWindow()
+            self.ui.setupUi(self.form)
+            self.ui.center(self.form)
+            self.FormLogin.hide()
+            self.form.show()
