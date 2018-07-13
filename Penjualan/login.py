@@ -3,9 +3,8 @@ from PyQt5.QtWidgets import QWidget, QDesktopWidget, QApplication, QMessageBox
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtSql import *
 import sys
-# from Penjualan.models import User
-# from Penjualan import mainprogram
-from Penjualan.models import User
+
+from Penjualan.models import Akun
 from Penjualan.mainprogram import Ui_MainWindow
 
 class Ui_FormLogin(object):
@@ -14,8 +13,6 @@ class Ui_FormLogin(object):
         self.FormLogin = QtWidgets.QMainWindow()
         self.setupUi(self.FormLogin)
         self.setCenter(self.FormLogin)
-        self.FormLogin.show()
-        sys.exit(self.app.exec_())
 
     def setupUi(self, FormLogin):
         FormLogin.setObjectName("FormLogin")
@@ -106,6 +103,10 @@ class Ui_FormLogin(object):
         self.btnClose.setText(_translate("FormLogin", "Close"))
         self.label_3.setText(_translate("FormLogin", "LOGIN ADMINISTRATOR"))
 
+    def run(self):
+        self.FormLogin.show()
+        sys.exit(self.app.exec())
+
     def setCenter(self,FormLogin):
         qr = FormLogin.frameGeometry()
 
@@ -118,24 +119,19 @@ class Ui_FormLogin(object):
         # top left of rectangle becomes top left of window centering it
         FormLogin.move(qr.topLeft())
 
-    def openMainProgram(self):
-        self.form = QtWidgets.QMainWindow()
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(form)
-        self.form.show()
-
     #@pyqtSlot()
     def on_click(self,form):
         username = self.txtUsername.text()
         password = self.txtPassword.text()
-        user = User.query.filter_by(username=username).first()
-
-        if user is None or user.check_password(password=password):
+        user = Akun.query.filter_by(username=username).first()
+        print(user)
+        if user is None or not user.check_password(password=password):
             QMessageBox.critical(None, "Login Gagal","Username atau password salah !",QMessageBox.Cancel)
         else:
-            self.form = QtWidgets.QMainWindow()
-            self.ui = Ui_MainWindow()
-            self.ui.setupUi(self.form)
-            self.ui.center(self.form)
-            self.FormLogin.hide()
-            self.form.show()
+            form = QtWidgets.QMainWindow()
+            main = Ui_MainWindow()
+            main.run()
+            # self.ui.setupUi(self.form)
+            # self.ui.setCenter(self.form)
+            
+            # self.form.show()

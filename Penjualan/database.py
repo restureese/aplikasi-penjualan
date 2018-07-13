@@ -11,6 +11,5 @@ Base.query = db_session.query_property()
 
 
 def init():
-	#import models
 	from Penjualan import models
 	Base.metadata.create_all(bind=engine)
