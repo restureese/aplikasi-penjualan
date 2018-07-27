@@ -1,11 +1,19 @@
+import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDesktopWidget
 
-from models import JenisBarang
-from database import db_session
-from barang import Ui_DialogBarang
+from Penjualan.models import JenisBarang
+from Penjualan.database import db_session
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class Ui_Dialog(object):
+
+    def __init__(self):
+        self.Dialog = QtWidgets.QDialog()
+        self.setupUi(self.Dialog)
+        self.setCenter(self.Dialog)
+
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(430, 123)
@@ -15,7 +23,7 @@ class Ui_Dialog(object):
         sizePolicy.setHeightForWidth(Dialog.sizePolicy().hasHeightForWidth())
         Dialog.setSizePolicy(sizePolicy)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../images/logo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
         self.gridLayout = QtWidgets.QGridLayout(Dialog)
         self.gridLayout.setObjectName("gridLayout")
@@ -54,7 +62,7 @@ class Ui_Dialog(object):
         font.setPointSize(12)
         self.btnSimpan.setFont(font)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("../images/Knob-Add-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/Knob-Add-icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnSimpan.setIcon(icon1)
         self.btnSimpan.setObjectName("btnSimpan")
         self.btnSimpan.clicked.connect(self.simpan)
@@ -64,10 +72,10 @@ class Ui_Dialog(object):
         font.setPointSize(12)
         self.btnKembali.setFont(font)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("../images/Knob-Left-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/Knob-Left-icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnKembali.setIcon(icon2)
         self.btnKembali.setObjectName("btnKembali")
-        self.btnKembali.clicked.connect(lambda:Dialog.close())
+        self.btnKembali.clicked.connect(self.kembali)
         self.gridLayout.addWidget(self.btnKembali, 1, 5, 1, 1)
 
         self.retranslateUi(Dialog)
@@ -94,29 +102,20 @@ class Ui_Dialog(object):
         Form.move(qr.topLeft())
 
     def simpan(self):
+        from Penjualan.barang import Ui_DialogBarang
         kode = self.txtKode.text()
         nama = self.txtNama.text()
-        self.DialogBarang = QtWidgets.QDialog()
-        self.ui = Ui_DialogBarang()
-        self.ui.setupUi(self.DialogBarang)
+        formbarang = Ui_DialogBarang()
         try:
             jenis_barang = JenisBarang(kode=kode,nama=nama)
             db_session.add(jenis_barang)
             db_session.commit()
-            Dialog.close()
-            
-            self.DialogBarang.show()
+            self.Dialog.close()
         except Exception as e:
             print(e)
 
+    def run(self):
+        self.Dialog.exec()
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    ui.setCenter(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())
-
+    def kembali(self):
+        self.Dialog.close()

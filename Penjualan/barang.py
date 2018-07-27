@@ -1,10 +1,19 @@
+import os
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from models import Barang, JenisBarang
-from database import db_session
-from jenisbarang import Ui_Dialog
+from Penjualan.models import Barang, JenisBarang
+from Penjualan.database import db_session
+from Penjualan.jenisbarang import Ui_Dialog
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class Ui_DialogBarang(object):
+
+    def __init__(self):
+        self.DialogBarang = QtWidgets.QDialog()
+        self.setupUi(self.DialogBarang)
+        self.setCenter(self.DialogBarang)
+
     def setupUi(self, DialogBarang):
         DialogBarang.setObjectName("DialogBarang")
         DialogBarang.resize(424, 430)
@@ -14,7 +23,7 @@ class Ui_DialogBarang(object):
         sizePolicy.setHeightForWidth(DialogBarang.sizePolicy().hasHeightForWidth())
         DialogBarang.setSizePolicy(sizePolicy)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../images/logo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         DialogBarang.setWindowIcon(icon)
         self.gridLayout_2 = QtWidgets.QGridLayout(DialogBarang)
         self.gridLayout_2.setObjectName("gridLayout_2")
@@ -25,7 +34,7 @@ class Ui_DialogBarang(object):
         font.setPointSize(12)
         self.btnTambah.setFont(font)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("../images/Knob-Add-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/Knob-Add-icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnTambah.setIcon(icon1)
         self.btnTambah.setObjectName("btnTambah")
         self.btnTambah.clicked.connect(self.tambahBarang)
@@ -35,27 +44,30 @@ class Ui_DialogBarang(object):
         font.setPointSize(12)
         self.btnEdit.setFont(font)
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("../images/Knob-Valid-Green-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/Knob-Valid-Green-icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnEdit.setIcon(icon2)
         self.btnEdit.setObjectName("btnEdit")
+        self.btnEdit.clicked.connect(self.editBarang)
         self.horizontalLayout.addWidget(self.btnEdit)
         self.btnHapus = QtWidgets.QPushButton(DialogBarang)
         font = QtGui.QFont()
         font.setPointSize(12)
         self.btnHapus.setFont(font)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("../images/Knob-Remove-Red-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/Knob-Remove-Red-icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnHapus.setIcon(icon3)
         self.btnHapus.setObjectName("btnHapus")
+        self.btnHapus.clicked.connect(self.hapusBarang)
         self.horizontalLayout.addWidget(self.btnHapus)
         self.btnKembali = QtWidgets.QPushButton(DialogBarang)
         font = QtGui.QFont()
         font.setPointSize(12)
         self.btnKembali.setFont(font)
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("../images/Knob-Left-icon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/Knob-Left-icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.btnKembali.setIcon(icon4)
         self.btnKembali.setObjectName("btnKembali")
+        self.btnKembali.clicked.connect(self.kembali)
         self.horizontalLayout.addWidget(self.btnKembali)
         self.gridLayout_2.addLayout(self.horizontalLayout, 2, 0, 1, 1)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
@@ -141,7 +153,7 @@ class Ui_DialogBarang(object):
         font.setPointSize(12)
         self.cbJenisBarang.setFont(font)
         self.cbJenisBarang.setObjectName("cbJenisBarang")
-        self.cbJenisBarang.addItem("-Pilih Jenis Barang -")
+        
         self.gridLayout.addWidget(self.cbJenisBarang, 2, 2, 1, 1)
         self.label = QtWidgets.QLabel(DialogBarang)
         font = QtGui.QFont()
@@ -157,6 +169,9 @@ class Ui_DialogBarang(object):
         self.gridLayout.addItem(spacerItem7, 4, 3, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
         self.updateCBJenisBarang()
+
+        self.kodeBarang = QtWidgets.QLabel(DialogBarang)
+        self.kodeBarang.hide()
 
         self.retranslateUi(DialogBarang)
         QtCore.QMetaObject.connectSlotsByName(DialogBarang)
@@ -176,24 +191,34 @@ class Ui_DialogBarang(object):
         self.label_5.setText(_translate("DialogBarang", "Harga Jual"))
         self.label.setText(_translate("DialogBarang", "Nama Barang"))
 
+    def setCenter(self,Form):
+        qr = Form.frameGeometry()
+
+        # center point of screen
+        cp = QtWidgets.QDesktopWidget().availableGeometry().center()
+
+        # move rectangle's center point to screen's center point
+        qr.moveCenter(cp)
+
+        # top left of rectangle becomes top left of window centering it
+        Form.move(qr.topLeft())
+
     def tambahJenisBarang(self):
-        self.Dialog = QtWidgets.QDialog()
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self.Dialog)
-        self.ui.setCenter(self.Dialog)
-        self.Dialog.show()
-        DialogBarang.close()
+        formbarang = Ui_Dialog()
+        formbarang.run()
+        self.updateCBJenisBarang()
 
     def updateCBJenisBarang(self):
         list_jenis_barang = JenisBarang.query.order_by(JenisBarang.nama).all()
-        
+        self.cbJenisBarang.clear()
+        self.cbJenisBarang.addItem("-Pilih Jenis Barang -")
         for jenis_barang in list_jenis_barang:
             self.cbJenisBarang.addItem(str(jenis_barang))
         
 
     def tambahBarang(self):
         nama = self.txtNamaBarang.text()
-        jenis = JenisBarang.query.filter_by(nama=self.cbJenisBarang.text()).first()
+        jenis = JenisBarang.query.filter_by(nama=str(self.cbJenisBarang.currentText())).first()
         satuan = self.txtSatuan.text()
         harga_beli = self.txtHargaBeli.text()
         harga_jual = self.txtHargaJual.text()
@@ -203,15 +228,36 @@ class Ui_DialogBarang(object):
             barang = Barang(nama=nama,jenis_barang=jenis.kode,satuan=satuan,harga_beli=harga_beli,harga_jual=harga_jual,stok=stok)
             db_session.add(barang)
             db_session.commit()
+            self.DialogBarang.close()
         except Exception as e:
             print(e)
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    DialogBarang = QtWidgets.QDialog()
-    ui = Ui_DialogBarang()
-    ui.setupUi(DialogBarang)
-    DialogBarang.show()
-    sys.exit(app.exec_())
+    def run(self):
+        self.DialogBarang.exec()
 
+    def kembali(self):
+        self.DialogBarang.close()
+
+    def hapusBarang(self):
+        try:
+            barang = Barang.query.filter_by(kode=self.kodeBarang.text()).first()
+            db_session.delete(barang)
+            db_session.commit()
+            self.DialogBarang.close()
+        except Exception as e:
+            raise e
+
+    def editBarang(self):
+        try:
+            barang = Barang.query.filter_by(kode=self.kodeBarang.text()).first()
+            jenis_barang = JenisBarang.query.filter_by(nama=self.cbJenisBarang.currentText()).first()
+            barang.nama = self.txtNamaBarang.text()
+            barang.jenis_barang = jenis_barang.kode
+            barang.satuan = self.txtSatuan.text()
+            barang.harga_beli = self.txtHargaBeli.text()
+            barang.harga_jual = self.txtHargaJual.text()
+            barang.stok = self.txtStok.text()
+            db_session.commit()
+            self.DialogBarang.close()
+        except Exception as e:
+            raise e

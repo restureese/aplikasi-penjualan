@@ -10,6 +10,7 @@ from sqlalchemy import func
 from Penjualan.models import Akun, JenisBarang, Barang, DetailTransaksi, Transaksi
 from Penjualan.database import engine, db_session
 
+
 from Penjualan.akun import Ui_DialogAkun
 
 
@@ -248,6 +249,7 @@ class Ui_MainWindow(object):
         self.btnTambah.setIcon(icon10)
         self.btnTambah.setIconSize(QtCore.QSize(24, 24))
         self.btnTambah.setObjectName("btnTambah")
+        self.btnTambah.clicked.connect(self.formTambahBarang)
         self.horizontalLayout_4.addWidget(self.btnTambah)
         self.comboBox = QtWidgets.QComboBox(self.pageMaster)
         font = QtGui.QFont()
@@ -258,6 +260,7 @@ class Ui_MainWindow(object):
         self.comboBox.addItem("")
         self.comboBox.addItem("")
         self.comboBox.addItem("")
+        
         self.horizontalLayout_4.addWidget(self.comboBox)
         self.verticalLayout_2.addLayout(self.horizontalLayout_4)
         self.scrollArea_2 = QtWidgets.QScrollArea(self.pageMaster)
@@ -270,8 +273,40 @@ class Ui_MainWindow(object):
         self.gridLayout_2.setObjectName("gridLayout_2")
         self.tableMaster = QtWidgets.QTableWidget(self.scrollAreaWidgetContents_4)
         self.tableMaster.setObjectName("tableMaster")
-        self.tableMaster.setColumnCount(0)
+        self.tableMaster.setColumnCount(7)
         self.tableMaster.setRowCount(0)
+        self.tableMaster.cellDoubleClicked.connect(self.formBarang)
+        item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        self.tableMaster.setHorizontalHeaderItem(0, item)
+        item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        self.tableMaster.setHorizontalHeaderItem(1, item)
+        item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        self.tableMaster.setHorizontalHeaderItem(2, item)
+        item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        self.tableMaster.setHorizontalHeaderItem(3, item)
+        item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        self.tableMaster.setHorizontalHeaderItem(4, item)
+        item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        self.tableMaster.setHorizontalHeaderItem(5, item)
+        item = QtWidgets.QTableWidgetItem()
+        item.setTextAlignment(QtCore.Qt.AlignCenter)
+        self.tableMaster.setHorizontalHeaderItem(6, item)
+        self.displayDataBarang()
+        self.comboBox.currentTextChanged.connect(self.filterBarang)
+        header = self.tableMaster.horizontalHeader()
+        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(5, QtWidgets.QHeaderView.ResizeToContents)
+        header.setSectionResizeMode(6, QtWidgets.QHeaderView.ResizeToContents)
         self.gridLayout_2.addWidget(self.tableMaster, 0, 0, 1, 1)
         self.scrollArea_2.setWidget(self.scrollAreaWidgetContents_4)
         self.verticalLayout_2.addWidget(self.scrollArea_2)
@@ -390,7 +425,6 @@ class Ui_MainWindow(object):
         self.gridLayout_6 = QtWidgets.QGridLayout(self.scrollAreaWidgetContents_6)
         self.gridLayout_6.setObjectName("gridLayout_6")
         self.tableAkun = QtWidgets.QTableWidget(self.scrollAreaWidgetContents_6)
-        # self.tableAkun.setHorizontalHeaderItem(2, item)
         self.tableAkun.setObjectName("tableAkun")
         self.tableAkun.setColumnCount(3)
         self.tableAkun.setRowCount(0)
@@ -468,9 +502,23 @@ class Ui_MainWindow(object):
         item = self.tableAkun.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Username"))
 
+        item = self.tableMaster.horizontalHeaderItem(0)
+        item.setText(_translate("MainWindow", "Kode Barang"))
+        item = self.tableMaster.horizontalHeaderItem(1)
+        item.setText(_translate("MainWindow", "Nama"))
+        item = self.tableMaster.horizontalHeaderItem(2)
+        item.setText(_translate("MainWindow", "Jenis Barang"))
+        item = self.tableMaster.horizontalHeaderItem(3)
+        item.setText(_translate("MainWindow", "Satuan"))
+        item = self.tableMaster.horizontalHeaderItem(4)
+        item.setText(_translate("MainWindow", "Harga Beli"))
+        item = self.tableMaster.horizontalHeaderItem(5)
+        item.setText(_translate("MainWindow", "Harga Jual"))
+        item = self.tableMaster.horizontalHeaderItem(6)
+        item.setText(_translate("MainWindow", "Stok"))
+
     def run(self):
         self.MainWindow.showMaximized()
-        #sys.exit(self.app.exec())
 
     def setCenter(self,Form):
         qr = Form.frameGeometry()
@@ -485,10 +533,6 @@ class Ui_MainWindow(object):
         Form.move(qr.topLeft())
 
     def displayDataAkun(self):
-        # model = QtGui.QStandardItemModel()
-        # model.setHorizontalHeaderLabels(['Nama Lengkap', 'Telepon','Username'])
-        # tabel.setModel(model)
-        # tabel.horizontalHeader().setTextAlignment(Qt.AlignHCenter)
         conn = engine.connect()
         s = select([Akun])
         result = conn.execute(s)
@@ -503,22 +547,40 @@ class Ui_MainWindow(object):
             self.tableAkun.setItem(row,1,telepon)
             self.tableAkun.setItem(row,2,username)
 
+    def displayDataBarang(self):
+        conn = engine.connect()
+        s = select([Barang])
+        result = conn.execute(s)
+        rows = db_session.query(func.count(Barang.kode)).scalar()
+        self.tableMaster.setRowCount(rows)
+        for row, data in enumerate(result):
+            kode = QTableWidgetItem(data[0])
+            nama = QTableWidgetItem(data[1])
+            jenis_barang = QTableWidgetItem(data[2])
+            satuan = QTableWidgetItem(data[3])
+            harga_beli = QTableWidgetItem(str(data[4]))
+            harga_jual = QTableWidgetItem(str(data[5]))
+            stok = QTableWidgetItem(str(data[6]))
+
+            self.tableMaster.setItem(row,0,kode)
+            self.tableMaster.setItem(row,1,nama)
+            self.tableMaster.setItem(row,2,jenis_barang)
+            self.tableMaster.setItem(row,3,satuan)
+            self.tableMaster.setItem(row,4,harga_beli)
+            self.tableMaster.setItem(row,5,harga_jual)
+            self.tableMaster.setItem(row,6,stok)
+
     def formTambahAkun(self):
-        #self.DialogAkun = QtWidgets.QDialog()
         akun = Ui_DialogAkun()
         akun.btnHapus.setEnabled(False)
         akun.btnEdit.setEnabled(False)
         akun.run()
         self.displayDataAkun()
 
-        # self.ui.setupUi(self.DialogAkun)
-        # self.ui.setCenter(self.DialogAkun)
-        # self.DialogAkun.show()
-        # self.displayDataAkun(self.tableAkun)
-
     def logout(self):
         from Penjualan.loginadmin import Ui_DialogLogin
         login = Ui_DialogLogin()
+        self.MainWindow.close()
         login.run()
 
     def formAkun(self):
@@ -533,3 +595,94 @@ class Ui_MainWindow(object):
         formakun.btnTambah.setEnabled(False)
         formakun.run()
         self.displayDataAkun()
+
+    def formTambahBarang(self):
+        from Penjualan.barang import Ui_DialogBarang
+        formbarang = Ui_DialogBarang()
+        formbarang.btnEdit.setEnabled(False)
+        formbarang.btnHapus.setEnabled(False)
+        formbarang.run()
+        self.displayDataBarang()
+
+    def formBarang(self):
+        from Penjualan.barang import Ui_DialogBarang
+        kodeBarang = self.tableMaster.item(self.tableMaster.currentRow(),0).text()
+        formbarang = Ui_DialogBarang()
+        barang = Barang.query.filter_by(kode=kodeBarang).first()
+        jenis_barang = JenisBarang.query.filter_by(kode=barang.jenis_barang).first()
+        formbarang.kodeBarang.setText(barang.kode)
+        formbarang.txtNamaBarang.setText(barang.nama)
+        formbarang.txtSatuan.setText(str(barang.satuan))
+        formbarang.txtHargaBeli.setText(str(barang.harga_beli))
+        formbarang.txtHargaJual.setText(str(barang.harga_jual))
+        formbarang.txtStok.setText(str(barang.stok))
+        index = formbarang.cbJenisBarang.findText(jenis_barang.nama, QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            formbarang.cbJenisBarang.setCurrentIndex(index)
+
+        formbarang.btnTambah.setEnabled(False)
+        formbarang.run()
+        self.displayDataBarang()
+
+    def filterBarang(self):
+        key = self.comboBox.currentText()
+        if key == "Nama Barang":
+            datas = Barang.query.order_by(Barang.nama).all()
+            for row, barang in enumerate(datas):
+                data = Barang.query.filter_by(nama=str(barang)).first()
+                kode = QTableWidgetItem(data.kode)
+                nama = QTableWidgetItem(data.nama)
+                jenis_barang = QTableWidgetItem(data.jenis_barang)
+                satuan = QTableWidgetItem(data.satuan)
+                harga_beli = QTableWidgetItem(str(data.harga_beli))
+                harga_jual = QTableWidgetItem(str(data.harga_jual))
+                stok = QTableWidgetItem(str(data.stok))
+
+                self.tableMaster.setItem(row,0,kode)
+                self.tableMaster.setItem(row,1,nama)
+                self.tableMaster.setItem(row,2,jenis_barang)
+                self.tableMaster.setItem(row,3,satuan)
+                self.tableMaster.setItem(row,4,harga_beli)
+                self.tableMaster.setItem(row,5,harga_jual)
+                self.tableMaster.setItem(row,6,stok)
+
+        elif key == "Jenis Barang":
+            datas = Barang.query.order_by(Barang.jenis_barang).all()
+            for row, barang in enumerate(datas):
+                data = Barang.query.filter_by(nama=str(barang)).first()
+                kode = QTableWidgetItem(data.kode)
+                nama = QTableWidgetItem(data.nama)
+                jenis_barang = QTableWidgetItem(data.jenis_barang)
+                satuan = QTableWidgetItem(data.satuan)
+                harga_beli = QTableWidgetItem(str(data.harga_beli))
+                harga_jual = QTableWidgetItem(str(data.harga_jual))
+                stok = QTableWidgetItem(str(data.stok))
+
+                self.tableMaster.setItem(row,0,kode)
+                self.tableMaster.setItem(row,1,nama)
+                self.tableMaster.setItem(row,2,jenis_barang)
+                self.tableMaster.setItem(row,3,satuan)
+                self.tableMaster.setItem(row,4,harga_beli)
+                self.tableMaster.setItem(row,5,harga_jual)
+                self.tableMaster.setItem(row,6,stok)
+        elif key == "Stok":
+            datas = Barang.query.order_by(Barang.stok).all()
+            for row, barang in enumerate(datas):
+                data = Barang.query.filter_by(nama=str(barang)).first()
+                kode = QTableWidgetItem(data.kode)
+                nama = QTableWidgetItem(data.nama)
+                jenis_barang = QTableWidgetItem(data.jenis_barang)
+                satuan = QTableWidgetItem(data.satuan)
+                harga_beli = QTableWidgetItem(str(data.harga_beli))
+                harga_jual = QTableWidgetItem(str(data.harga_jual))
+                stok = QTableWidgetItem(str(data.stok))
+
+                self.tableMaster.setItem(row,0,kode)
+                self.tableMaster.setItem(row,1,nama)
+                self.tableMaster.setItem(row,2,jenis_barang)
+                self.tableMaster.setItem(row,3,satuan)
+                self.tableMaster.setItem(row,4,harga_beli)
+                self.tableMaster.setItem(row,5,harga_jual)
+                self.tableMaster.setItem(row,6,stok)
+        else:
+            self.displayDataBarang()

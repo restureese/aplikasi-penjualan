@@ -1,4 +1,5 @@
 import sys
+import os
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox, QDesktopWidget
@@ -8,9 +9,10 @@ from Penjualan.database import db_session
 
 from Penjualan.mainprogram import Ui_MainWindow
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 class Ui_DialogLogin(object):
     def __init__(self):
-        self.app = QtWidgets.QApplication(sys.argv)
         self.DialogLogin = QtWidgets.QDialog()
         self.setupUi(self.DialogLogin)
         self.setCenter(self.DialogLogin)
@@ -24,7 +26,7 @@ class Ui_DialogLogin(object):
         sizePolicy.setHeightForWidth(DialogLogin.sizePolicy().hasHeightForWidth())
         DialogLogin.setSizePolicy(sizePolicy)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("../images/logo.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(os.path.join(BASE_DIR,"images/logo.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         DialogLogin.setWindowIcon(icon)
         self.gridLayout = QtWidgets.QGridLayout(DialogLogin)
         self.gridLayout.setObjectName("gridLayout")
@@ -40,6 +42,7 @@ class Ui_DialogLogin(object):
         self.txtPassword.setFont(font)
         self.txtPassword.setInputMethodHints(QtCore.Qt.ImhHiddenText)
         self.txtPassword.setObjectName("txtPassword")
+        self.txtPassword.setEchoMode(QtWidgets.QLineEdit.Password)
         self.gridLayout.addWidget(self.txtPassword, 6, 1, 1, 1)
         self.label_2 = QtWidgets.QLabel(DialogLogin)
         font = QtGui.QFont()
@@ -77,6 +80,7 @@ class Ui_DialogLogin(object):
         font.setPointSize(12)
         self.btnCancel.setFont(font)
         self.btnCancel.setObjectName("btnCancel")
+        self.btnCancel.clicked.connect(self.close)
         self.horizontalLayout.addWidget(self.btnCancel)
         self.gridLayout.addLayout(self.horizontalLayout, 8, 1, 1, 1)
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
@@ -89,7 +93,7 @@ class Ui_DialogLogin(object):
 
     def retranslateUi(self, DialogLogin):
         _translate = QtCore.QCoreApplication.translate
-        DialogLogin.setWindowTitle(_translate("DialogLogin", "Dialog"))
+        DialogLogin.setWindowTitle(_translate("DialogLogin", "Form Login"))
         self.label.setText(_translate("DialogLogin", "Username"))
         self.label_2.setText(_translate("DialogLogin", "Password"))
         self.label_3.setText(_translate("DialogLogin", "LOGIN ADMINISTRATOR"))
@@ -97,8 +101,8 @@ class Ui_DialogLogin(object):
         self.btnCancel.setText(_translate("DialogLogin", "Batal"))
 
     def run(self):
-        self.DialogLogin.show()
-        sys.exit(self.app.exec())
+        self.DialogLogin.exec()
+        # sys.exit(self.app.exec())
 
     def setCenter(self,FormLogin):
         qr = FormLogin.frameGeometry()
@@ -125,13 +129,5 @@ class Ui_DialogLogin(object):
             main.run()
             self.DialogLogin.hide()
 
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     DialogLogin = QtWidgets.QDialog()
-#     ui = Ui_DialogLogin()
-#     ui.setupUi(DialogLogin)
-#     DialogLogin.show()
-#     sys.exit(app.exec_())
-
+    def close(self):
+        self.DialogLogin.close()

@@ -183,7 +183,6 @@ class Ui_DialogAkun(object):
             akun.username = self.txtUsername.text()
             akun.password = generate_password_hash(self.txtPassword.text())
             db_session.commit()
-            DialogAkun.close()
             self.DialogAkun.close()
         except Exception as e:
             print(e)
@@ -202,15 +201,3 @@ class Ui_DialogAkun(object):
 
     def tampilData(self):
         self.btnTambah.setEnabled(False)
-        #self.txtUsername.setText(username)
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     DialogAkun = QtWidgets.QDialog()
-#     ui = Ui_DialogAkun()
-#     ui.setupUi(DialogAkun)
-#     ui.setCenter(DialogAkun)
-#     DialogAkun.show()
-#     sys.exit(app.exec_())
-
